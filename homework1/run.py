@@ -1,24 +1,21 @@
-from preproc_utils import get_vk, get_web, get_astro, get_vk_friends
+from preprocessing_utils import get_vk, get_web, get_astro, get_vk_friends
+from utils import get_logger
 
 
-# TODO: add logging
+log = get_logger(__name__)
 
 
 def preprocessing():
-    print('vk.csv')
     get_vk()
-    print('vk_friends')
     get_vk_friends()
-    print('web-Google')
     get_web()
-    print('AstroPh')
     get_astro()
 
 
 def main():
-    print('start preprocessing...')
+    log.info('Start preprocessing...')
     preprocessing()
-    print('end preprocessing')
+    log.info('End preprocessing.')
 
     # for Task in [Task1,
     #              ]:
