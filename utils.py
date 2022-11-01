@@ -16,3 +16,22 @@ def get_logger(name) -> logging.Logger:
         log.addHandler(ch)
 
     return log
+
+
+class AbstractTask:
+    def __init__(self, graph: nx.Graph, fname: str):
+        self.G = graph
+        self.fname = fname
+
+    def run(self):
+        raise NotImplementedError
+
+    def get_features(self):
+        features = []
+        for k, v in self.__dict__.items():
+            if k != 'G' and k != 'fname':
+                features.append(k)
+        return features
+
+    def get_values(self):
+        return [getattr(self, name) for name in self.get_features()]

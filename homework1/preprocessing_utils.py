@@ -8,7 +8,9 @@ from defaults import DATA_ROOT
 from utils import get_logger
 
 os.makedirs('clear_data', exist_ok=True)
+os.makedirs('results', exist_ok=True)
 CLEAR_DATA_ROOT = Path(__file__).parent.absolute() / 'clear_data'
+RESULTS_ROOT = Path(__file__).parent.absolute() / 'results'
 
 log = get_logger(__name__)
 
@@ -49,7 +51,7 @@ def get_vk_friends():
         return
 
     log.info(f'Getting {name}...')
-    nx.write_gexf(nx.read_gexf(DATA_ROOT / name), CLEAR_DATA_ROOT / name)
+    nx.write_gexf(nx.to_undirected(nx.read_gexf(DATA_ROOT / name)), CLEAR_DATA_ROOT / name)
 
 
 def get_web():
