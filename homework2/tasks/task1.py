@@ -12,7 +12,6 @@ colors = list(mcolors.TABLEAU_COLORS)
 
 class Task1(AbstractTask):
     prefix = 'task1'
-    # TODO: reload graph with names instead 'numbers'
     # TODO: rewrite plot creating with one method
 
     def __init__(self, graph: nx.Graph, fname: str):
@@ -26,9 +25,13 @@ class Task1(AbstractTask):
 
         # Current subgraph
         pos = nx.spring_layout(sub_graph)
-        plt.figure()
+        plt.figure(figsize=(20, 10))
         plt.title('Original subgraph')
-        nx.draw(sub_graph, pos=pos, node_size=100, node_color=colors[0])
+        nx.draw(sub_graph,
+                pos=pos,
+                node_size=100,
+                node_color=colors[0],
+                with_labels=True)
         plt.tight_layout()
         plt.savefig(RESULTS_ROOT / 'original.png')
 
@@ -37,20 +40,24 @@ class Task1(AbstractTask):
         max_clique = sorted(all_cliques, key=len, reverse=True)[0]
         other_nodes = nx.nodes(sub_graph) - max_clique
 
-        plt.figure()
+        plt.figure(figsize=(20, 10))
         plt.title('Graph with maximal clique')
         nx.draw_networkx_nodes(sub_graph,
                                pos=pos,
                                nodelist=max_clique,
                                node_color=colors[1],
                                node_size=100,
-                               label=f'Max clique={len(max_clique)}')
+                               label=f'Max clique={len(max_clique)}',
+                               alpha=0.5)
         nx.draw_networkx_nodes(sub_graph,
                                pos=pos,
                                nodelist=other_nodes,
                                node_color=colors[0],
-                               node_size=100)
-        nx.draw_networkx_edges(sub_graph, pos=pos)
+                               node_size=100,
+                               alpha=0.5)
+        nx.draw_networkx_labels(sub_graph,
+                                pos=pos)
+        nx.draw_networkx_edges(sub_graph, pos=pos, alpha=0.5)
         nx.draw(sub_graph, pos=pos, alpha=0.)
         plt.tight_layout()
         plt.legend()
@@ -58,20 +65,26 @@ class Task1(AbstractTask):
 
         # Get k-core
         max_core_nodes = nx.k_core(sub_graph).nodes()
-        plt.figure()
+        plt.figure(figsize=(20, 10))
         plt.title('Graph with maximal k-core nodes')
         nx.draw_networkx_nodes(sub_graph,
                                pos=pos,
                                nodelist=max_core_nodes,
                                node_color=colors[2],
                                node_size=100,
-                               label=f'Max k-core={len(max_core_nodes)}')
+                               label=f'Max k-core={len(max_core_nodes)}',
+                               alpha=0.5)
         nx.draw_networkx_nodes(sub_graph,
                                pos=pos,
                                nodelist=other_nodes,
                                node_color=colors[0],
-                               node_size=100)
-        nx.draw_networkx_edges(sub_graph, pos=pos)
+                               node_size=100,
+                               alpha=0.5)
+        nx.draw_networkx_labels(sub_graph,
+                                pos=pos)
+        nx.draw_networkx_edges(sub_graph,
+                               pos=pos,
+                               alpha=0.5)
         nx.draw(sub_graph, pos=pos, alpha=0.)
         plt.tight_layout()
         plt.legend()
