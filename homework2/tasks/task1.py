@@ -12,7 +12,6 @@ colors = list(mcolors.TABLEAU_COLORS)
 
 class Task1(AbstractTask):
     prefix = 'task1'
-    # TODO: rewrite plot creating with one method
 
     def __init__(self, graph: nx.Graph, fname: str):
         super().__init__(graph=graph, fname=fname)
@@ -22,70 +21,67 @@ class Task1(AbstractTask):
         # Get the largest connectivity component
         lcc = max(nx.connected_components(self.G), key=len)
         sub_graph = self.G.subgraph(lcc)
+        pos = nx.spring_layout(sub_graph)
 
         # Current subgraph
-        pos = nx.spring_layout(sub_graph)
-        plt.figure(figsize=(20, 10))
-        plt.title('Original subgraph')
-        nx.draw(sub_graph,
-                pos=pos,
-                node_size=100,
-                node_color=colors[0],
-                with_labels=True)
-        plt.tight_layout()
-        plt.savefig(RESULTS_ROOT / 'original.png')
+        self.plot_network(subgraph=sub_graph,
+                          nodelist=nx.nodes(sub_graph),
+                          pos=pos,
+                          title='Original subgraph',
+                          tag='original',
+                          color=colors[0])
 
         # Get the maximum graph clique
         all_cliques = list(nx.find_cliques(sub_graph))
         max_clique = sorted(all_cliques, key=len, reverse=True)[0]
-        other_nodes = nx.nodes(sub_graph) - max_clique
-
-        plt.figure(figsize=(20, 10))
-        plt.title('Graph with maximal clique')
-        nx.draw_networkx_nodes(sub_graph,
-                               pos=pos,
-                               nodelist=max_clique,
-                               node_color=colors[1],
-                               node_size=100,
-                               label=f'Max clique={len(max_clique)}',
-                               alpha=0.5)
-        nx.draw_networkx_nodes(sub_graph,
-                               pos=pos,
-                               nodelist=other_nodes,
-                               node_color=colors[0],
-                               node_size=100,
-                               alpha=0.5)
-        nx.draw_networkx_labels(sub_graph,
-                                pos=pos)
-        nx.draw_networkx_edges(sub_graph, pos=pos, alpha=0.5)
-        nx.draw(sub_graph, pos=pos, alpha=0.)
-        plt.tight_layout()
-        plt.legend()
-        plt.savefig(RESULTS_ROOT / 'max_clique.png')
+        self.plot_network(subgraph=sub_graph,
+                          nodelist=max_clique,
+                          pos=pos,
+                          title='Graph with maximal clique',
+                          tag='max_clique',
+                          color=colors[1],
+                          label=f'Max clique={len(max_clique)}')
 
         # Get k-core
         max_core_nodes = nx.k_core(sub_graph).nodes()
-        plt.figure(figsize=(20, 10))
-        plt.title('Graph with maximal k-core nodes')
-        nx.draw_networkx_nodes(sub_graph,
+        self.plot_network(subgraph=sub_graph,
+                          nodelist=max_core_nodes,
+                          pos=pos,
+                          title='Graph with maximal k-core nodes',
+                          tag='core',
+                          color=colors[2],
+                          label=f'Max k-core={len(max_core_nodes)}')
+
+    @staticmethod
+    def plot_network(subgraph, nodelist, pos, title, tag, color, label=None):
+        other_nodes = nx.nodes(subgraph) - nodelist
+
+        plt.figure(figsize=(16, 9))
+        plt.title(f'{title}')
+
+        # Draw specific nodes
+        nx.draw_networkx_nodes(subgraph,
                                pos=pos,
-                               nodelist=max_core_nodes,
-                               node_color=colors[2],
-                               node_size=100,
-                               label=f'Max k-core={len(max_core_nodes)}',
+                               nodelist=nodelist,
+                               node_color=color,
+                               node_size=200,
+                               label=label,
                                alpha=0.5)
-        nx.draw_networkx_nodes(sub_graph,
+        # Draw other nodes
+        nx.draw_networkx_nodes(subgraph,
                                pos=pos,
                                nodelist=other_nodes,
                                node_color=colors[0],
-                               node_size=100,
+                               node_size=200,
                                alpha=0.5)
-        nx.draw_networkx_labels(sub_graph,
+        # Draw labels
+        nx.draw_networkx_labels(subgraph,
                                 pos=pos)
-        nx.draw_networkx_edges(sub_graph,
+        # Draw edges
+        nx.draw_networkx_edges(subgraph,
                                pos=pos,
-                               alpha=0.5)
-        nx.draw(sub_graph, pos=pos, alpha=0.)
+                               alpha=0.3)
         plt.tight_layout()
-        plt.legend()
-        plt.savefig(RESULTS_ROOT / 'core.png')
+        if label is not None:
+            plt.legend()
+        plt.savefig(RESULTS_ROOT / f'{tag}.png')
