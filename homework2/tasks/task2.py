@@ -2,29 +2,26 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-colors = list(mcolors.TABLEAU_COLORS)
-
+from homework2.task_defaults import CLEAR_DATA_ROOT
 from utils import get_logger, AbstractTask
 
+colors = list(mcolors.TABLEAU_COLORS)
 log = get_logger(__name__)
 
 
 class Task2(AbstractTask):
     prefix = 'task2'
-    '''
-    # TODO: 
-    метрика модулярности: 04-5, Colab3
-    метрика edge betweeness: Никишин
-    '''
 
-    def __init__(self, graph: nx.Graph, fname: str):
-        super().__init__(graph=graph, fname=fname)
-        self.G = nx.to_undirected(self.G)
+    def __init__(self,):
+        self.graph = None
 
     def run(self):
+        self.graph = nx.read_gexf(CLEAR_DATA_ROOT / 'vk_friends_graph.gexf')
+        self.graph = nx.to_undirected(self.graph)
+
         # Get the largest connectivity component
-        lcc = max(nx.connected_components(self.G), key=len)
-        sub_graph = self.G.subgraph(lcc)
+        lcc = max(nx.connected_components(self.graph), key=len)
+        sub_graph = self.graph.subgraph(lcc)
 
         # Modularity maximization
         mm = nx.algorithms.community.greedy_modularity_communities(sub_graph)
@@ -35,7 +32,7 @@ class Task2(AbstractTask):
         for i, nodes in enumerate(mm):
             nx.draw_networkx_nodes(sub_graph, pos=pos, nodelist=nodes, node_color=colors[i+1])
         print('modularity: ', nx.algorithms.community.modularity(sub_graph, mm))
-        plt.show()
+        # plt.show()
 
         # Edge-betweenness
         eb_graph = sub_graph.copy()
@@ -54,5 +51,5 @@ class Task2(AbstractTask):
         for i, nodes in enumerate(best_partition):
             nx.draw_networkx_nodes(sub_graph, pos=pos, nodelist=nodes, node_color=colors[i+1])
         print('modularity: ', nx.algorithms.community.modularity(sub_graph, best_partition))
-        plt.show()
+        # plt.show()
 

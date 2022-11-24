@@ -1,26 +1,27 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from homework2.task_defaults import RESULTS_ROOT
 
+from homework2.task_defaults import RESULTS_ROOT, CLEAR_DATA_ROOT
 from utils import get_logger, AbstractTask
 
-log = get_logger(__name__)
-
 colors = list(mcolors.TABLEAU_COLORS)
+log = get_logger(__name__)
 
 
 class Task1(AbstractTask):
     prefix = 'task1'
 
-    def __init__(self, graph: nx.Graph, fname: str):
-        super().__init__(graph=graph, fname=fname)
-        self.G = nx.to_undirected(self.G)
+    def __init__(self):
+        self.graph = None
 
     def run(self):
+        self.graph = nx.read_gexf(CLEAR_DATA_ROOT / 'vk_friends_graph.gexf')
+        self.graph = nx.to_undirected(self.graph)
+
         # Get the largest connectivity component
-        lcc = max(nx.connected_components(self.G), key=len)
-        sub_graph = self.G.subgraph(lcc)
+        lcc = max(nx.connected_components(self.graph), key=len)
+        sub_graph = self.graph.subgraph(lcc)
         pos = nx.spring_layout(sub_graph)
 
         # Current subgraph

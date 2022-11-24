@@ -20,10 +20,6 @@ def get_logger(name) -> logging.Logger:
 
 
 class AbstractTask:
-    def __init__(self, graph: nx.Graph, fname: str):
-        self.G = graph
-        self.fname = fname
-
     def run(self):
         raise NotImplementedError
 
