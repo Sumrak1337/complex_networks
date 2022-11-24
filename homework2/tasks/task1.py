@@ -77,7 +77,8 @@ class Task1(AbstractTask):
                                alpha=0.5)
         # Draw labels
         nx.draw_networkx_labels(subgraph,
-                                pos=pos)
+                                pos=pos,
+                                font_size=14)
         # Draw edges
         nx.draw_networkx_edges(subgraph,
                                pos=pos,
