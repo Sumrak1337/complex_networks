@@ -22,7 +22,9 @@ class Task1(AbstractTask):
         # Get the largest connectivity component
         lcc = max(nx.connected_components(self.graph), key=len)
         sub_graph = self.graph.subgraph(lcc)
-        pos = nx.spring_layout(sub_graph)
+        pos = nx.spring_layout(sub_graph,
+                               iterations=500,
+                               seed=42)
 
         # Current subgraph
         self.plot_network(subgraph=sub_graph,
