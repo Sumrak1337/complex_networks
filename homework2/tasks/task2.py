@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-from homework2.task_defaults import CLEAR_DATA_ROOT
+from homework2.task_defaults import CLEAR_DATA_ROOT, RESULTS_ROOT
 from utils import get_logger, AbstractTask
 
 colors = list(mcolors.TABLEAU_COLORS)
@@ -25,14 +25,15 @@ class Task2(AbstractTask):
 
         # Modularity maximization
         mm = nx.algorithms.community.greedy_modularity_communities(sub_graph)
-        pos = nx.spring_layout(sub_graph)
-        nx.draw_networkx_edges(sub_graph, pos=pos)
-        # TODO: nicer graphs
-        # TODO: calculate modularity
-        for i, nodes in enumerate(mm):
-            nx.draw_networkx_nodes(sub_graph, pos=pos, nodelist=nodes, node_color=colors[i+1])
-        print('modularity: ', nx.algorithms.community.modularity(sub_graph, mm))
-        # plt.show()
+        pos = nx.spring_layout(sub_graph,
+                               iterations=500,
+                               seed=42)
+
+        self.plot_networkx(subgraph=sub_graph,
+                           title='Modularity maximization',
+                           pos=pos,
+                           nodelist=mm,
+                           tag='max_modul')
 
         # Edge-betweenness
         eb_graph = sub_graph.copy()
@@ -44,12 +45,33 @@ class Task2(AbstractTask):
             partition = list(nx.connected_components(eb_graph))
             part_seq.append(partition)
 
-        # modularity_seq = [nx.algorithms.community.modularity(sub_graph, part) for part in part_seq]  # need for graph
-        best_partition = max(part_seq, key=lambda p: nx.algorithms.community.modularity(sub_graph, p))
-        # TODO: also make nicer graph
-        nx.draw_networkx_edges(sub_graph, pos=pos)
-        for i, nodes in enumerate(best_partition):
-            nx.draw_networkx_nodes(sub_graph, pos=pos, nodelist=nodes, node_color=colors[i+1])
-        print('modularity: ', nx.algorithms.community.modularity(sub_graph, best_partition))
-        # plt.show()
+        best_partition = max(part_seq, key=lambda x: nx.algorithms.community.modularity(sub_graph, x))
 
+        self.plot_networkx(subgraph=sub_graph,
+                           title='Edge-betweenness',
+                           pos=pos,
+                           nodelist=best_partition,
+                           tag='edge'
+                           )
+        log.info(f'Modularity from Edge-Betweenness: {nx.algorithms.community.modularity(sub_graph, best_partition):.4f}')
+
+    @staticmethod
+    def plot_networkx(subgraph, title, pos, nodelist, tag):
+        plt.figure(figsize=(16, 9))
+        plt.title(f'{title} subgraph')
+        nx.draw_networkx_edges(subgraph,
+                               pos=pos,
+                               alpha=0.3)
+        for i, nodes in enumerate(nodelist):
+            nx.draw_networkx_nodes(subgraph,
+                                   pos=pos,
+                                   nodelist=nodes,
+                                   node_size=200,
+                                   node_color=colors[i + 2],
+                                   alpha=0.5)
+        nx.draw_networkx_labels(subgraph,
+                                pos=pos,
+                                font_size=14)
+        plt.tight_layout()
+        plt.savefig(RESULTS_ROOT / f'{tag}.png')
+        plt.close('all')
