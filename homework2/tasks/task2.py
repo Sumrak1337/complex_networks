@@ -34,6 +34,7 @@ class Task2(AbstractTask):
                            pos=pos,
                            nodelist=mm,
                            tag='max_modul')
+        log.info(f'Modularity from Modularity Maximization: {nx.algorithms.community.modularity(sub_graph, mm):.4f}')
 
         # Edge-betweenness
         eb_graph = sub_graph.copy()
