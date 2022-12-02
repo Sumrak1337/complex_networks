@@ -7,12 +7,17 @@ log = get_logger(__name__)
 
 
 def main():
+    log.info('Start Homework2')
     for Task in [
         Task1,
         Task2,
         Task3,
     ]:
+        log.info(f'Start {Task.prefix}...')
         Task().run()
+        log.info(f'End {Task.prefix}')
+
+    log.info('End Homework2')
 
 
 if __name__ == '__main__':

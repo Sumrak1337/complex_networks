@@ -5,10 +5,10 @@ import os
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from utils import AbstractTask
+from utils import AbstractTask, get_logger
 from homework2.task_defaults import CLEAR_DATA_ROOT, RESULTS_ROOT
 
-# TODO: add logging
+log = get_logger(__name__)
 
 
 class Task3(AbstractTask):
@@ -17,7 +17,7 @@ class Task3(AbstractTask):
     def __init__(self):
         self.random_graph = None
         self.snowball_graph = None
-        self.full = False
+        self.full = True
 
     def run(self):
         if self.full:
@@ -32,8 +32,8 @@ class Task3(AbstractTask):
         # Density comparison
         random_den = nx.density(self.random_graph)
         snowball_den = nx.density(self.snowball_graph)
-        print(f"Random Graph Density: {random_den:.8f}")
-        print(f"Snowball Graph Density: {snowball_den:.8f}")
+        log.info(f"Random Graph Density: {random_den:.8f}")
+        log.info(f"Snowball Graph Density: {snowball_den:.8f}")
 
         # Average shortest path length
         snowball_avg_path_length = nx.average_shortest_path_length(self.snowball_graph)
@@ -42,8 +42,8 @@ class Task3(AbstractTask):
         for subgraph in random_graph_components:
             random_avg_path_length += nx.average_shortest_path_length(subgraph)
         random_avg_path_length /= len(random_graph_components)
-        print(f"Random Graph average shortest path length: {random_avg_path_length:.4f}")  # TODO: ask
-        print(f"Snowball Graph average shortest path length: {snowball_avg_path_length:.4f}")
+        log.info(f"Random Graph average shortest path length: {random_avg_path_length:.4f}")  # TODO: ask
+        log.info(f"Snowball Graph average shortest path length: {snowball_avg_path_length:.4f}")
 
         # Density Degree distribution
         random_degree_seq = [degree[1] for degree in nx.degree(self.random_graph)]
@@ -71,7 +71,7 @@ class Task3(AbstractTask):
         output_path_random = CLEAR_DATA_ROOT / 'imdb_random_full.gexf'
         output_path_snowball = CLEAR_DATA_ROOT / 'imdb_snowball_full.gexf'
         if os.path.isfile(output_path_random) and os.path.isfile(output_path_snowball):
-            print('All GEXF files are exist, skip preprocessing')
+            log.info('All GEXF files are exist, skip preprocessing')
             return
 
         # Generate random graph
@@ -86,7 +86,7 @@ class Task3(AbstractTask):
         output_path_random = CLEAR_DATA_ROOT / 'imdb_random_cur.gexf'
         output_path_snowball = CLEAR_DATA_ROOT / 'imdb_snowball_cur.gexf'
         if os.path.isfile(output_path_random) and os.path.isfile(output_path_snowball):
-            print('All GEXF files are exist, skip preprocessing')
+            log.info('All GEXF files are exist, skip preprocessing')
             return
 
         graph = nx.Graph()
@@ -129,7 +129,7 @@ class Task3(AbstractTask):
     def get_csv_actors():
         output_path_random_csv = CLEAR_DATA_ROOT / 'actors_random.csv'
         if os.path.isfile(output_path_random_csv):
-            print(f'Random graph CSV is already exist, skip')
+            log.info(f'Random graph CSV is already exist, skip')
             return
 
         data = pd.read_csv(CLEAR_DATA_ROOT / 'data_actors.tsv', sep='\t')
@@ -158,7 +158,7 @@ class Task3(AbstractTask):
     @staticmethod
     def get_gexf_random_actors(path):
         if os.path.isfile(path):
-            print('Random graph GEXF file is already exist, skip')
+            log.info('Random graph GEXF file is already exist, skip')
             return
 
         graph = nx.Graph()
@@ -185,7 +185,7 @@ class Task3(AbstractTask):
     @staticmethod
     def get_gexf_snowball_actors(path):
         if os.path.isfile(path):
-            print('Snowball graph GEXF file is already exist, skip')
+            log.info('Snowball graph GEXF file is already exist, skip')
             return
 
         data = pd.read_csv(CLEAR_DATA_ROOT / 'data_actors.tsv', sep='\t')
