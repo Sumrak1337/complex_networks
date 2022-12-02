@@ -17,7 +17,7 @@ class Task3(AbstractTask):
     def __init__(self):
         self.random_graph = None
         self.snowball_graph = None
-        self.full = True
+        self.full = False
 
     def run(self):
         if self.full:
@@ -25,7 +25,7 @@ class Task3(AbstractTask):
             self.random_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_random_full.gexf')
             self.snowball_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_snowball_full.gexf')
         else:
-            # self.preprocessing_of_current_db()
+            self.preprocessing_of_current_db()
             self.random_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_random_cur.gexf')
             self.snowball_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_snowball_cur.gexf')
 
@@ -60,7 +60,12 @@ class Task3(AbstractTask):
         plt.title("Density Degree Distribution")
         plt.legend()
         plt.tight_layout()
-        plt.savefig(RESULTS_ROOT / 'deg_distr.png')
+        if self.full:
+            plt.savefig(RESULTS_ROOT / 'deg_distr_full.png')
+        else:
+            plt.savefig(RESULTS_ROOT / f'deg_distr_cur.png')
+
+        # Communities
 
     def preprocessing_of_full_db(self):
         output_path_random = CLEAR_DATA_ROOT / 'imdb_random_full.gexf'
@@ -75,6 +80,50 @@ class Task3(AbstractTask):
 
         # Generate snowball graph
         self.get_gexf_snowball_actors(output_path_snowball)
+
+    @staticmethod
+    def preprocessing_of_current_db():
+        output_path_random = CLEAR_DATA_ROOT / 'imdb_random_cur.gexf'
+        output_path_snowball = CLEAR_DATA_ROOT / 'imdb_snowball_cur.gexf'
+        if os.path.isfile(output_path_random) and os.path.isfile(output_path_snowball):
+            print('All GEXF files are exist, skip preprocessing')
+            return
+
+        graph = nx.Graph()
+        with open(CLEAR_DATA_ROOT / 'actors_costar.edges', 'r') as f:
+            for line in tqdm(f.readlines()):
+                fp, sp, num = line.split()
+                graph.add_edge(fp, sp)
+
+        # Random
+        rs = np.random.RandomState(42)
+        nodelist = list(nx.nodes(graph))
+        random_nodelist = []
+        while len(random_nodelist) < 1000:
+            idx = rs.randint(0, len(nodelist))
+            node = nodelist[idx]
+            if idx not in random_nodelist:
+                random_nodelist.append(node)
+
+        # Snowball
+        s_idx = rs.randint(0, len(nodelist))
+        snowball_nodelist = [nodelist[s_idx]]
+        for neighbour in snowball_nodelist:
+            # add neighbour in neighs
+            current_neighs = list(nx.neighbors(graph, neighbour))
+            for neigh in current_neighs:
+                if neigh not in snowball_nodelist:
+                    snowball_nodelist.append(neigh)
+                if len(snowball_nodelist) == 1000:
+                    break
+            if len(snowball_nodelist) == 1000:
+                break
+
+        # Write gexf
+        random_subgraph = nx.subgraph(graph, random_nodelist)
+        snowball_subgraph = nx.subgraph(graph, snowball_nodelist)
+        nx.write_gexf(random_subgraph, output_path_random)
+        nx.write_gexf(snowball_subgraph, output_path_snowball)
 
     @staticmethod
     def get_csv_actors():
