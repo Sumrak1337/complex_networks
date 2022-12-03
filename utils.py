@@ -1,6 +1,12 @@
 import networkx as nx
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import logging
 import sys
+
+from homework2.task_defaults import RESULTS_ROOT
+
+colors = list(mcolors.TABLEAU_COLORS)
 
 
 def get_logger(name) -> logging.Logger:
@@ -32,3 +38,25 @@ class AbstractTask:
 
     def get_values(self):
         return [getattr(self, name) for name in self.get_features()]
+
+    @staticmethod
+    def plot_networkx(subgraph, title, pos, nodelist, tag, labels=True, node_size=200):
+        plt.figure(figsize=(16, 9))
+        plt.title(f'{title} subgraph')
+        nx.draw_networkx_edges(subgraph,
+                               pos=pos,
+                               alpha=0.3)
+        for i, nodes in enumerate(nodelist):
+            nx.draw_networkx_nodes(subgraph,
+                                   pos=pos,
+                                   nodelist=nodes,
+                                   node_size=node_size,
+                                   node_color=colors[(i + 2) % 10],
+                                   alpha=0.5)
+        if labels:
+            nx.draw_networkx_labels(subgraph,
+                                    pos=pos,
+                                    font_size=14)
+        plt.tight_layout()
+        plt.savefig(RESULTS_ROOT / f'{tag}.png')
+        plt.close('all')

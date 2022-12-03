@@ -17,7 +17,7 @@ class Task3(AbstractTask):
     def __init__(self):
         self.random_graph = None
         self.snowball_graph = None
-        self.full = True
+        self.full = False
 
     def run(self):
         if self.full:
@@ -66,6 +66,43 @@ class Task3(AbstractTask):
             plt.savefig(RESULTS_ROOT / f'deg_distr_cur.png')
 
         # Communities
+        # TODO: create search community function and plot_network in Abstract
+        for graph, graph_tag in zip([self.random_graph, self.snowball_graph], ['random', 'snowball']):
+            # Max modularity
+            mm = nx.algorithms.community.greedy_modularity_communities(graph)
+            pos = nx.spring_layout(graph,
+                                   seed=42)
+            self.plot_networkx(subgraph=graph,
+                               title='Modularity maximization',  # TODO: change
+                               pos=pos,
+                               nodelist=mm,
+                               tag=graph_tag,
+                               labels=False,
+                               node_size=100)
+            plt.show()
+
+            # Edge-betweenness
+            # eb_graph = graph.copy()
+            # part_seq = []
+            # for _ in tqdm(range(nx.number_of_edges(eb_graph))):
+            #     eb = nx.edge_betweenness_centrality(eb_graph)
+            #     mve = max(nx.edges(eb_graph), key=eb.get)
+            #     eb_graph.remove_edge(*mve)
+            #     partition = list(nx.connected_components(eb_graph))
+            #     part_seq.append(partition)
+            #
+            # best_partition = max(part_seq, key=lambda x: nx.algorithms.community.modularity(graph, x))
+            #
+            # pos = nx.spring_layout(graph,
+            #                        seed=42)
+            #
+            # self.plot_networkx(subgraph=graph,
+            #                    title='',
+            #                    pos=pos,
+            #                    nodelist=best_partition,
+            #                    tag=graph_tag,
+            #                    labels=False)
+            # plt.show()
 
     def preprocessing_of_full_db(self):
         output_path_random = CLEAR_DATA_ROOT / 'imdb_random_full.gexf'

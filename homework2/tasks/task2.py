@@ -56,23 +56,23 @@ class Task2(AbstractTask):
                            )
         log.info(f'Modularity from Edge-Betweenness: {nx.algorithms.community.modularity(sub_graph, best_partition):.4f}')
 
-    @staticmethod
-    def plot_networkx(subgraph, title, pos, nodelist, tag):
-        plt.figure(figsize=(16, 9))
-        plt.title(f'{title} subgraph')
-        nx.draw_networkx_edges(subgraph,
-                               pos=pos,
-                               alpha=0.3)
-        for i, nodes in enumerate(nodelist):
-            nx.draw_networkx_nodes(subgraph,
-                                   pos=pos,
-                                   nodelist=nodes,
-                                   node_size=200,
-                                   node_color=colors[i + 2],
-                                   alpha=0.5)
-        nx.draw_networkx_labels(subgraph,
-                                pos=pos,
-                                font_size=14)
-        plt.tight_layout()
-        plt.savefig(RESULTS_ROOT / f'{tag}.png')
-        plt.close('all')
+    # @staticmethod
+    # def plot_networkx(subgraph, title, pos, nodelist, tag):
+        # plt.figure(figsize=(16, 9))
+        # plt.title(f'{title} subgraph')
+        # nx.draw_networkx_edges(subgraph,
+        #                        pos=pos,
+        #                        alpha=0.3)
+        # for i, nodes in enumerate(nodelist):
+        #     nx.draw_networkx_nodes(subgraph,
+        #                            pos=pos,
+        #                            nodelist=nodes,
+        #                            node_size=200,
+        #                            node_color=colors[i + 2],
+        #                            alpha=0.5)
+        # nx.draw_networkx_labels(subgraph,
+        #                         pos=pos,
+        #                         font_size=14)
+        # plt.tight_layout()
+        # plt.savefig(RESULTS_ROOT / f'{tag}.png')
+        # plt.close('all')
