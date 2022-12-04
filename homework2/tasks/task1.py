@@ -19,6 +19,16 @@ class Task1(AbstractTask):
         self.graph = nx.read_gexf(CLEAR_DATA_ROOT / 'vk_friends_graph.gexf')
         self.graph = nx.to_undirected(self.graph)
 
+        self.plot_network(subgraph=self.graph,
+                          nodelist=nx.nodes(self.graph),
+                          pos=nx.spring_layout(self.graph,
+                                               iterations=14,
+                                               seed=42),
+                          title='Original full graph',
+                          tag='original_full',
+                          color=colors[0],
+                          labels=False)
+
         # Get the largest connectivity component
         lcc = max(nx.connected_components(self.graph), key=len)
         sub_graph = self.graph.subgraph(lcc)
@@ -56,7 +66,7 @@ class Task1(AbstractTask):
                           label=f'Max k-core={len(max_core_nodes)}')
 
     @staticmethod
-    def plot_network(subgraph, nodelist, pos, title, tag, color, label=None):
+    def plot_network(subgraph, nodelist, pos, title, tag, color, label=None, labels=True):
         other_nodes = nx.nodes(subgraph) - nodelist
 
         plt.figure(figsize=(16, 9))
@@ -78,9 +88,10 @@ class Task1(AbstractTask):
                                node_size=200,
                                alpha=0.5)
         # Draw labels
-        nx.draw_networkx_labels(subgraph,
-                                pos=pos,
-                                font_size=14)
+        if labels:
+            nx.draw_networkx_labels(subgraph,
+                                    pos=pos,
+                                    font_size=14)
         # Draw edges
         nx.draw_networkx_edges(subgraph,
                                pos=pos,
