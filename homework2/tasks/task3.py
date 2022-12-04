@@ -101,7 +101,12 @@ class Task3(AbstractTask):
 
         # Communities
         # TODO: create search community function in Abstract
-        for graph, graph_tag in zip([self.random_graph, self.snowball_graph], ['random', 'snowball']):
+        if self.full:
+            g_tags = ['random_full', 'snowball_full']
+        else:
+            g_tags = ['random_cur', 'snowball_cur']
+
+        for graph, graph_tag in zip([self.random_graph, self.snowball_graph], g_tags):
             # Max modularity
             mm = nx.algorithms.community.greedy_modularity_communities(graph)
             pos = nx.spring_layout(graph,
