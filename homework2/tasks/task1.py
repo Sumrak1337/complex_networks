@@ -1,8 +1,7 @@
 import networkx as nx
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-from homework2.task_defaults import RESULTS_ROOT, CLEAR_DATA_ROOT
+from homework2.task_defaults import CLEAR_DATA_ROOT
 from utils import get_logger, AbstractTask
 
 colors = list(mcolors.TABLEAU_COLORS)
@@ -64,39 +63,3 @@ class Task1(AbstractTask):
                           tag='core',
                           color=colors[2],
                           label=f'Max k-core={len(max_core_nodes)}')
-
-    @staticmethod
-    def plot_network(subgraph, nodelist, pos, title, tag, color, label=None, labels=True):
-        other_nodes = nx.nodes(subgraph) - nodelist
-
-        plt.figure(figsize=(16, 9))
-        plt.title(f'{title}')
-
-        # Draw specific nodes
-        nx.draw_networkx_nodes(subgraph,
-                               pos=pos,
-                               nodelist=nodelist,
-                               node_color=color,
-                               node_size=200,
-                               label=label,
-                               alpha=0.5)
-        # Draw other nodes
-        nx.draw_networkx_nodes(subgraph,
-                               pos=pos,
-                               nodelist=other_nodes,
-                               node_color=colors[0],
-                               node_size=200,
-                               alpha=0.5)
-        # Draw labels
-        if labels:
-            nx.draw_networkx_labels(subgraph,
-                                    pos=pos,
-                                    font_size=14)
-        # Draw edges
-        nx.draw_networkx_edges(subgraph,
-                               pos=pos,
-                               alpha=0.3)
-        plt.tight_layout()
-        if label is not None:
-            plt.legend()
-        plt.savefig(RESULTS_ROOT / f'{tag}.png')

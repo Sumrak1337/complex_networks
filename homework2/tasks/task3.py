@@ -24,10 +24,44 @@ class Task3(AbstractTask):
             self.preprocessing_of_full_db()
             self.random_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_random_full.gexf')
             self.snowball_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_snowball_full.gexf')
+
+            random_pos = nx.spring_layout(self.random_graph)
+            snowball_pos = nx.spring_layout(self.snowball_graph)
+
+            self.plot_network(subgraph=self.random_graph,
+                              nodelist=nx.nodes(self.random_graph),
+                              pos=random_pos,
+                              title='Original full random graph',
+                              tag='original_full_random',
+                              labels=False)
+
+            self.plot_network(subgraph=self.snowball_graph,
+                              nodelist=nx.nodes(self.snowball_graph),
+                              pos=snowball_pos,
+                              title='Original full snowball graph',
+                              tag='original_full_snowball',
+                              labels=False)
         else:
             self.preprocessing_of_current_db()
             self.random_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_random_cur.gexf')
             self.snowball_graph = nx.read_gexf(CLEAR_DATA_ROOT / 'imdb_snowball_cur.gexf')
+
+            random_pos = nx.spring_layout(self.random_graph)
+            snowball_pos = nx.spring_layout(self.snowball_graph)
+
+            self.plot_network(subgraph=self.random_graph,
+                              nodelist=nx.nodes(self.random_graph),
+                              pos=random_pos,
+                              title='Original current random graph',
+                              tag='original_current_random',
+                              labels=False)
+
+            self.plot_network(subgraph=self.snowball_graph,
+                              nodelist=nx.nodes(self.snowball_graph),
+                              pos=snowball_pos,
+                              title='Original current snowball graph',
+                              tag='original_current_snowball',
+                              labels=False)
 
         # Density comparison
         random_den = nx.density(self.random_graph)
@@ -63,22 +97,22 @@ class Task3(AbstractTask):
         if self.full:
             plt.savefig(RESULTS_ROOT / 'deg_distr_full.png')
         else:
-            plt.savefig(RESULTS_ROOT / f'deg_distr_cur.png')
+            plt.savefig(RESULTS_ROOT / 'deg_distr_cur.png')
 
         # Communities
-        # TODO: create search community function and plot_network in Abstract
+        # TODO: create search community function in Abstract
         for graph, graph_tag in zip([self.random_graph, self.snowball_graph], ['random', 'snowball']):
             # Max modularity
             mm = nx.algorithms.community.greedy_modularity_communities(graph)
             pos = nx.spring_layout(graph,
                                    seed=42)
-            self.plot_networkx(subgraph=graph,
-                               title='Modularity maximization',  # TODO: change
-                               pos=pos,
-                               nodelist=mm,
-                               tag=graph_tag,
-                               labels=False,
-                               node_size=100)
+            self.plot_modularity_networkx(subgraph=graph,
+                                          title=f'Partition of {graph_tag} graph with max modularity',
+                                          pos=pos,
+                                          nodelist=mm,
+                                          tag=graph_tag,
+                                          labels=False,
+                                          node_size=100)
             plt.show()
 
             # Edge-betweenness

@@ -40,7 +40,7 @@ class AbstractTask:
         return [getattr(self, name) for name in self.get_features()]
 
     @staticmethod
-    def plot_networkx(subgraph, title, pos, nodelist, tag, labels=True, node_size=200):
+    def plot_modularity_networkx(subgraph, title, pos, nodelist, tag, labels=True, node_size=200):
         plt.figure(figsize=(16, 9))
         plt.title(f'{title} subgraph')
         nx.draw_networkx_edges(subgraph,
@@ -60,3 +60,39 @@ class AbstractTask:
         plt.tight_layout()
         plt.savefig(RESULTS_ROOT / f'{tag}.png')
         plt.close('all')
+
+    @staticmethod
+    def plot_network(subgraph, nodelist, pos, title, tag, color=colors[0], label=None, labels=True):
+        other_nodes = nx.nodes(subgraph) - nodelist
+
+        plt.figure(figsize=(16, 9))
+        plt.title(f'{title}')
+
+        # Draw specific nodes
+        nx.draw_networkx_nodes(subgraph,
+                               pos=pos,
+                               nodelist=nodelist,
+                               node_color=color,
+                               node_size=200,
+                               label=label,
+                               alpha=0.5)
+        # Draw other nodes
+        nx.draw_networkx_nodes(subgraph,
+                               pos=pos,
+                               nodelist=other_nodes,
+                               node_color=colors[0],
+                               node_size=200,
+                               alpha=0.5)
+        # Draw labels
+        if labels:
+            nx.draw_networkx_labels(subgraph,
+                                    pos=pos,
+                                    font_size=14)
+        # Draw edges
+        nx.draw_networkx_edges(subgraph,
+                               pos=pos,
+                               alpha=0.3)
+        plt.tight_layout()
+        if label is not None:
+            plt.legend()
+        plt.savefig(RESULTS_ROOT / f'{tag}.png')

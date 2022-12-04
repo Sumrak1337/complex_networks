@@ -11,7 +11,7 @@ def main():
     for Task in [
         Task1,
         Task2,
-        # Task3,
+        Task3,
     ]:
         log.info(f'Start {Task.prefix}...')
         Task().run()
