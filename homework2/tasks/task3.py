@@ -33,6 +33,7 @@ class Task3(AbstractTask):
                               pos=random_pos,
                               title='Original full random graph',
                               tag='original_full_random',
+                              save_root=RESULTS_ROOT,
                               labels=False)
 
             self.plot_network(subgraph=self.snowball_graph,
@@ -40,6 +41,7 @@ class Task3(AbstractTask):
                               pos=snowball_pos,
                               title='Original full snowball graph',
                               tag='original_full_snowball',
+                              save_root=RESULTS_ROOT,
                               labels=False)
         else:
             self.preprocessing_of_current_db()
@@ -54,6 +56,7 @@ class Task3(AbstractTask):
                               pos=random_pos,
                               title='Original current random graph',
                               tag='original_current_random',
+                              save_root=RESULTS_ROOT,
                               labels=False)
 
             self.plot_network(subgraph=self.snowball_graph,
@@ -61,6 +64,7 @@ class Task3(AbstractTask):
                               pos=snowball_pos,
                               title='Original current snowball graph',
                               tag='original_current_snowball',
+                              save_root=RESULTS_ROOT,
                               labels=False)
 
         # Density comparison

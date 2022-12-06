@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.colors as mcolors
 
-from homework2.task_defaults import CLEAR_DATA_ROOT
+from homework2.task_defaults import CLEAR_DATA_ROOT, RESULTS_ROOT
 from utils import get_logger, AbstractTask
 
 colors = list(mcolors.TABLEAU_COLORS)
@@ -25,6 +25,7 @@ class Task1(AbstractTask):
                                                seed=42),
                           title='Original full graph',
                           tag='original_full',
+                          save_root=RESULTS_ROOT,
                           color=colors[0],
                           labels=False)
 
@@ -41,6 +42,7 @@ class Task1(AbstractTask):
                           pos=pos,
                           title='Original subgraph',
                           tag='original',
+                          save_root=RESULTS_ROOT,
                           color=colors[0])
 
         # Get the maximum graph clique
@@ -52,6 +54,7 @@ class Task1(AbstractTask):
                           title='Graph with maximal clique',
                           tag='max_clique',
                           color=colors[1],
+                          save_root=RESULTS_ROOT,
                           label=f'Max clique={len(max_clique)}')
 
         # Get k-core
@@ -62,4 +65,5 @@ class Task1(AbstractTask):
                           title='Graph with maximal k-core nodes',
                           tag='core',
                           color=colors[2],
+                          save_root=RESULTS_ROOT,
                           label=f'Max k-core={len(max_core_nodes)}')

@@ -62,7 +62,7 @@ class AbstractTask:
         plt.close('all')
 
     @staticmethod
-    def plot_network(subgraph, nodelist, pos, title, tag, color=colors[0], label=None, labels=True, node_size=200):
+    def plot_network(subgraph, nodelist, pos, title, tag, save_root, color=colors[0], label=None, labels=True, node_size=200):
         other_nodes = nx.nodes(subgraph) - nodelist
 
         plt.figure(figsize=(16, 9))
@@ -95,4 +95,4 @@ class AbstractTask:
         plt.tight_layout()
         if label is not None:
             plt.legend()
-        plt.savefig(RESULTS_ROOT / f'{tag}.png')
+        plt.savefig(save_root / f'{tag}.png')
