@@ -1,7 +1,7 @@
 import networkx as nx
 
 from utils import AbstractTask
-from homework1.preprocessing_utils import CLEAR_DATA_ROOT
+from homework1.task_defaults import CLEAR_DATA_ROOT
 
 
 class Task3(AbstractTask):
@@ -15,4 +15,4 @@ class Task3(AbstractTask):
         lcc = max(nx.connected_components(self.G), key=len)
         subgraph = nx.subgraph(self.G, lcc)
 
-        print(subgraph)
+        # print(subgraph)
