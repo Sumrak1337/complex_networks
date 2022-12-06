@@ -62,7 +62,7 @@ class AbstractTask:
         plt.close('all')
 
     @staticmethod
-    def plot_network(subgraph, nodelist, pos, title, tag, color=colors[0], label=None, labels=True):
+    def plot_network(subgraph, nodelist, pos, title, tag, color=colors[0], label=None, labels=True, node_size=200):
         other_nodes = nx.nodes(subgraph) - nodelist
 
         plt.figure(figsize=(16, 9))
@@ -73,7 +73,7 @@ class AbstractTask:
                                pos=pos,
                                nodelist=nodelist,
                                node_color=color,
-                               node_size=200,
+                               node_size=node_size,
                                label=label,
                                alpha=0.5)
         # Draw other nodes
@@ -81,7 +81,7 @@ class AbstractTask:
                                pos=pos,
                                nodelist=other_nodes,
                                node_color=colors[0],
-                               node_size=200,
+                               node_size=node_size,
                                alpha=0.5)
         # Draw labels
         if labels:
