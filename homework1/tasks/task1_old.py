@@ -12,7 +12,7 @@ from homework1.preprocessing_utils import RESULTS_ROOT
 
 log = get_logger(__name__)
 
-
+#TODO: ALL WRONG
 class Task1(AbstractTask):
     prefix = 'task1'
 
@@ -38,6 +38,9 @@ class Task1(AbstractTask):
         self.avg_degree = None
 
     def run(self):
+        tr = nx.triangles(self.G)
+        print(tr)
+        return
         self.n_nodes = self.G.number_of_nodes()
         self.n_edges = self.G.number_of_edges()
         self.density = self.n_edges / (self.n_nodes * (self.n_nodes - 1)) / 2
