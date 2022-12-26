@@ -1,8 +1,10 @@
+import logging
+import sys
+from enum import Enum
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-import logging
-import sys
 
 from homework2.task_defaults import RESULTS_ROOT
 
@@ -96,3 +98,10 @@ class AbstractTask:
         if label is not None:
             plt.legend()
         plt.savefig(save_root / f'{tag}.png')
+
+
+class GraphData(Enum):
+    ASTROPH_GRAPH = 'CA-AstroPh.txt'
+    VK_GRAPH = 'vk.csv'
+    VK_FRIENDS_GRAPH = 'vk_friends_graph.gexf'
+    WEB_GRAPH = 'web-Google.txt'

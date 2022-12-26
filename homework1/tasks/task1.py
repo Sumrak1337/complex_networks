@@ -1,94 +1,81 @@
-import os
 import networkx as nx
 import pandas as pd
-from tqdm import tqdm
 
-from utils import AbstractTask, get_logger
-from homework1.task_defaults import CLEAR_DATA_ROOT
+from utils import GraphData, get_logger
+from homework1.task_defaults import DATA_ROOT
 
-log = get_logger(__file__)
+log = get_logger(__name__)
 
 
-class Task1(AbstractTask):
+class Task1:
     prefix = 'task1'
 
     def __init__(self):
         self.graph = None
-        self.graph_astro = None  # CA-AstroPh.txt
-        self.graph_vk = None  # vk.csv
-        self.graph_vk_friends = None  # vk_friends_graph.gexf
-        self.graph_web = None  # web-Google.txt
 
     def run(self):
-        self.preprocessing()
-
-        graph_tags = [
-            'CA-AstroPh.gexf',
-            # 'vk.gexf',
-            'vk_friends_graph.gexf',
-            'web-Google.gexf'
+        graphs = [
+            'CA-AstroPh.txt',
+            # 'vk.csv',
+            # 'vk_friends_graph.gexf',
+            # 'web-Google.txt'
         ]
-        for graph_tag in graph_tags:
-            log.info(f'{graph_tag} reading')
-            self.graph = nx.read_gexf(CLEAR_DATA_ROOT / graph_tag)
-            if graph_tag != 'web-Google.gexf':
-                self.graph = nx.to_undirected(self.graph)
 
-    def preprocessing(self):
-        log.info('Start preprocessing')
-        astro_name = 'CA-AstroPh'
-        vk_name = 'vk'
-        web_name = 'web-Google'
+        for graph_tag in graphs:
+            log.info(f'Graph {graph_tag}:')
+            graph = self.get_graph(graph_tag)
 
-        self._get_astro(astro_name)
-        self._get_vk(vk_name)
-        self._get_web(web_name)
+            n_nodes = len(nx.nodes(graph))
+            n_edges = len(nx.edges(graph))
+            max_edges = n_nodes * (n_nodes - 1) if graph_tag == GraphData.WEB_GRAPH.value else n_nodes * (n_nodes - 1)
+            n_weak_cc = len(list(nx.weakly_connected_components(graph))) if graph_tag == GraphData.WEB_GRAPH.value else len(list(nx.connected_components(graph)))
+            n_strong_cc = len(list(nx.strongly_connected_components(graph))) if graph_tag == GraphData.WEB_GRAPH.value else None
+            weak_cc = max(nx.weakly_connected_components(graph), key=len) if graph_tag == GraphData.WEB_GRAPH.value else max(nx.connected_components(graph), key=len)
+            strong_cc = max(nx.strongly_connected_components(graph), key=len) if graph_tag == GraphData.WEB_GRAPH.value else None
 
-        # self.graph_astro = nx.to_undirected(nx.read_gexf(CLEAR_DATA_ROOT / f'{astro_name}.gexf'))
-        # self.graph_vk = nx.to_undirected(nx.read_gexf(CLEAR_DATA_ROOT / f'{vk_name}.gexf'))
-        # self.graph_vk_friends = nx.to_undirected(nx.read_gexf(CLEAR_DATA_ROOT / f'{vk_friends_name}.gexf'))
-        # self.graph_web = nx.read_gexf(CLEAR_DATA_ROOT / f'{web_name}')
-        log.info('End preprocessing')
+            log.info(f'# of nodes: {n_nodes}')
+            log.info(f'# of edges: {n_edges}')
+            log.info(f'Density: {n_edges / max_edges:.4f}')
+            log.info(f'Max weakly connected components: {n_weak_cc}')
+            log.info(f'Weakly percentile: {len(weak_cc) / n_nodes:.4f}')
+            if graph_tag == GraphData.WEB_GRAPH.value:
+                log.info(f'Max strongly connected components: {n_strong_cc}')
+                log.info(f'Strongly percentile: {len(strong_cc) / n_nodes:.4f}')
 
-    @staticmethod
-    def _read_txt(txt):
-        g = nx.Graph()
-        with open(CLEAR_DATA_ROOT / txt, 'r') as f:
-            lines = f.readlines()
-        for line in tqdm(lines):
-            if '#' in line:
-                continue
-            source, target = line.split()
-            g.add_edge(source, target)
-        return g
+    def get_graph(self, graph_tag):
+        if graph_tag == GraphData.ASTROPH_GRAPH.value:
+            graph = nx.Graph()
+            with open(DATA_ROOT / graph_tag, 'r') as f:
+                for line in f.readlines():
+                    if '#' in line:
+                        continue
+                    source, target = line.split()
+                    graph.add_edge(source, target)
+            return graph
 
-    def _get_astro(self, name):
-        if self._check_exist_gexf(name):
-            return
+        if graph_tag == GraphData.VK_GRAPH.value:
+            vk = pd.read_csv(DATA_ROOT / graph_tag).drop(['t', 'h'], axis=1)
+            graph = nx.from_pandas_edgelist(vk, source='u', target='v')
+            return graph
 
-        g = self._read_txt(f'{name}.txt')
-        nx.write_gexf(g, CLEAR_DATA_ROOT / f'{name}.gexf')
+        if graph_tag == GraphData.VK_FRIENDS_GRAPH.value:
+            graph = nx.read_gexf(DATA_ROOT / graph_tag)
+            graph = self.to_undirected(graph)
+            return graph
 
-    def _get_vk(self, name):
-        if self._check_exist_gexf(name):
-            return
-
-        vk = pd.read_csv(CLEAR_DATA_ROOT / f'{name}.csv')
-        g = nx.Graph()
-        for _, row in tqdm(vk.iterrows(), total=vk.shape[0]):
-            g.add_edge(row.u, row.v)
-        nx.write_gexf(g, CLEAR_DATA_ROOT / f'{name}.gexf')
-
-    def _get_web(self, name):
-        if self._check_exist_gexf(name):
-            return
-
-        g = self._read_txt(f'{name}.txt')
-        nx.write_gexf(g, CLEAR_DATA_ROOT / f'{name}.gexf')
+        if graph_tag == GraphData.WEB_GRAPH.value:
+            graph = nx.DiGraph()
+            with open(DATA_ROOT / graph_tag, 'r') as f:
+                for line in f.readlines():
+                    if '#' in line:
+                        continue
+                    source, target = line.split()
+                    graph.add_edge(source, target)
+            return graph
 
     @staticmethod
-    def _check_exist_gexf(name):
-        if os.path.isfile(CLEAR_DATA_ROOT / f'{name}.gexf'):
-            log.info(f'{name}.gexf is already exist, skip')
-            return True
-        return False
+    def to_undirected(graph):
+        undirected_graph = nx.Graph()
+        for edge in nx.edges(graph):
+            undirected_graph.add_edge(*edge)
+        return undirected_graph
