@@ -1,4 +1,5 @@
 import random
+import math
 
 import networkx as nx
 import pandas as pd
@@ -78,6 +79,33 @@ class Task1:
             log.info(f'Radius: {radius}')
             log.info(f'Diameter: {diameter}')
             log.info(f'P90: {all_paths.quantile(q=0.9)}')
+
+            # cluster coefficients
+            local_cluster_coefs = []
+            n_triangles = 0
+            den = 0
+            for node in nx.nodes(graph):
+                nbs = list(nx.neighbors(graph, node))
+                e = 0
+                for i in range(len(nbs) - 1):
+                    for j in range(i + 1, len(nbs)):
+                        if graph.has_edge(nbs[i], nbs[j]):
+                            n_triangles += 1
+                            e += 1
+                nv = len(nbs)
+                degree = nx.degree(graph, node)
+                den += 0 if degree < 2 else math.factorial(nv) / math.factorial(2) / math.factorial(nv - 2)
+                local_cluster_coefs.append(0 if degree < 2 else 2 * e / degree / (degree - 1))
+
+            log.info(f'# of triangles: {n_triangles // 3}')
+            log.info(f'Average cluster coefficient: {np.sum(local_cluster_coefs) / n_nodes:.4f}')
+            log.info(f'Global cluster coefficient: {n_triangles / den:.4f}')
+
+            # degree distribution in simple and log-log
+
+            # linear function
+
+            # delete nodes
 
     def get_graph(self, graph_tag):
         if graph_tag == GraphData.ASTROPH_GRAPH.value:
