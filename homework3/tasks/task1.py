@@ -2,17 +2,15 @@ import os
 import random
 
 import networkx as nx
+import numpy as np
 import pandas as pd
-import matplotlib
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as Mc
-from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
 from tqdm import tqdm
 
-from homework3.task_defaults import DATA_ROOT, RESULTS_ROOT
+from homework3.task_defaults import DATA_ROOT
 from utils import get_logger
 
-matplotlib.use('Agg')
 log = get_logger(__name__)
 
 
@@ -40,26 +38,49 @@ class Task1:
             self.sir_gnp,
             self.sir_gnp_att
         ]:
-            model = ep.SIRModel(graph)
+            log.info(f'Graph {graph.name}')
+            res = np.array([])
+            for _ in range(100):
+                # TODO: figure out
+                # TODO: add comments
+                nodes = list(nx.nodes(graph))
+                in1 = [random.choice(nodes)]
+                sorted_degrees = sorted(graph.degree, key=lambda x: x[1], reverse=True)
+                in2 = [sorted_degrees[0][0]]
+                in3 = [node[0] for node in sorted_degrees[:10]] + random.sample(nodes, 10)
 
-            inf_node = random.choice(list(nx.nodes(graph)))
-            config = Mc.Configuration()
-            config.add_model_parameter('beta', beta)
-            config.add_model_parameter('gamma', mu)
-            config.add_model_initial_configuration('Infected', [inf_node])
-            model.set_initial_status(configuration=config)
+                for inf_node in [
+                    in1,
+                    in2,
+                    in3
+                ]:
+                    model = ep.SIRModel(graph)
 
-            current_iteration = model.iteration()
+                    config = Mc.Configuration()
+                    config.add_model_parameter('beta', beta)
+                    config.add_model_parameter('gamma', mu)
+                    config.add_model_initial_configuration('Infected', inf_node)
+                    model.set_initial_status(configuration=config)
 
-            while current_iteration['node_count'][1] != 0:
-                current_iteration = model.iteration()
-                print(current_iteration['node_count'])
+                    current_iteration = model.iteration()
 
+                    while current_iteration['node_count'][1] != 0:
+                        current_iteration = model.iteration()
+
+                    res = np.append(res, current_iteration['node_count'][2] / n)
+                    model.reset()
+
+            n50 = sum(res > 0.5)
+            res[res > 0.5] = 0.
+            max_inf_nodes = max(res)
+            log.info(f'Epidemic %: {n50:.2f}%')
+            log.info(f'Max nodes were infected at non epidemic: {int(max_inf_nodes * n)}')
             break
 
     def preprocessing(self):
         self.imdb_preprocessing()
         self.imdb = nx.read_gexf(DATA_ROOT / 'imdb_graph.gexf')
+        return
         n = len(nx.nodes(self.imdb))
         d_sum = sum([d[1] for d in list(nx.degree(self.imdb))]) / 2
         avg_d = 2 * d_sum / n
