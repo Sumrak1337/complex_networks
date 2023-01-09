@@ -3,8 +3,10 @@ import sys
 from enum import Enum
 
 import networkx as nx
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from sklearn.linear_model import LinearRegression
 
 from homework2.task_defaults import RESULTS_ROOT
 
@@ -98,6 +100,67 @@ class AbstractTask:
         if label is not None:
             plt.legend()
         plt.savefig(save_root / f'{tag}.png')
+
+    @staticmethod
+    def get_pdf(graph_tag, unique, heights, save_root, loglog=False):
+        plt.figure(figsize=(16, 10))
+        plt.xlabel('Degree')
+        plt.ylabel('Density')
+
+        if loglog:
+            log_unique = np.array([np.log(val) if val > 0 else 1e-6 for val in unique])
+            log_heights = np.array([np.log(val) if val > 0 else 1e-6 for val in heights])
+            log_heights = log_heights / max(log_heights)
+            fname = f'pdf_{graph_tag}_loglog.png'
+            plt.title(f'PDF of {graph_tag} (LogLog)')
+            plt.scatter(log_unique, log_heights)
+        else:
+            fname = f'pdf_{graph_tag}.png'
+            plt.title(f'PDF of {graph_tag}')
+            plt.bar(unique, heights / max(heights))
+
+        plt.tight_layout()
+        plt.savefig(save_root / fname)
+        plt.close()
+
+    @staticmethod
+    def get_cdf(graph_tag, heights, save_root, loglog=False):
+        plt.figure(figsize=(16, 10))
+        plt.xlabel('Degree')
+        plt.ylabel('Density')
+
+        if loglog:
+            fname = f'cdf_{graph_tag}_loglog.png'
+            log_heights = [np.log(val) if val > 0 else 1e-6 for val in heights]
+            plt.hist(log_heights, bins=len(heights), rwidth=0.85, density=True, cumulative=True)
+            plt.title(f'CDF of {graph_tag} (LogLog)')
+        else:
+            fname = f'cdf_{graph_tag}.png'
+            plt.hist(heights, bins=len(heights), rwidth=0.85, density=True, cumulative=True)
+            plt.title(f'CDF of {graph_tag}')
+
+        plt.tight_layout()
+        plt.savefig(save_root / fname)
+        plt.close()
+
+    @staticmethod
+    def get_linear_approximation(graph_tag, unique, heights, save_root):
+        unique = unique.reshape(-1, 1)
+        reg = LinearRegression()
+        reg.fit(unique, heights)
+
+        # y = a + b * x
+        a = reg.intercept_
+        b = reg.coef_[0]
+        y = reg.predict(unique)
+
+        plt.figure(figsize=(16, 10))
+        plt.title("Linear Approximation with LSM")
+        plt.scatter(unique, heights)
+        plt.plot(unique, y, label=f'y={a:.2f} + {b:.2f}*x')
+        plt.legend()
+        plt.savefig(save_root / f'{graph_tag}_approximation.png')
+        plt.close()
 
 
 class GraphData(Enum):
