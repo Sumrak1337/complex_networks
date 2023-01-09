@@ -24,12 +24,13 @@ class Task1:
         self.gnp_att = None
         self.sir_gnp_att = None
 
+        self.beta = 0.05
+        self.mu = 0.5
+
     def run(self):
         self.preprocessing()
 
         n = len(nx.nodes(self.imdb))
-        beta = 0.05
-        mu = 0.5
 
         for graph in [
             self.imdb,
@@ -39,48 +40,49 @@ class Task1:
             self.sir_gnp_att
         ]:
             log.info(f'Graph {graph.name}')
-            res = np.array([])
-            for _ in range(100):
-                # TODO: figure out
-                # TODO: add comments
-                nodes = list(nx.nodes(graph))
+
+            nodes = list(nx.nodes(graph))
+            sorted_degrees = sorted(graph.degree, key=lambda x: x[1], reverse=True)
+            global_res = {}
+
+            for _ in tqdm(range(100)):
+                # One random infected node
                 in1 = [random.choice(nodes)]
-                sorted_degrees = sorted(graph.degree, key=lambda x: x[1], reverse=True)
+
+                # One infected node with the highest degree
                 in2 = [sorted_degrees[0][0]]
+
+                # 10 infected nodes with the highest degree + 10 random infected nodes
                 in3 = [node[0] for node in sorted_degrees[:10]] + random.sample(nodes, 10)
 
-                for inf_node in [
+                for i, inf_node in enumerate([
                     in1,
                     in2,
                     in3
-                ]:
-                    model = ep.SIRModel(graph)
+                ]):
+                    simulation_result = self.model_simulation(graph, inf_node)
+                    if i in global_res.keys():
+                        global_res[i].append(simulation_result)
+                    else:
+                        global_res[i] = [simulation_result]
 
-                    config = Mc.Configuration()
-                    config.add_model_parameter('beta', beta)
-                    config.add_model_parameter('gamma', mu)
-                    config.add_model_initial_configuration('Infected', inf_node)
-                    model.set_initial_status(configuration=config)
+            for k, v in global_res.items():
+                log.info(f'Results for task 1.{k + 1}:')
+                values = np.array([v])
 
-                    current_iteration = model.iteration()
+                # Calculate, how many times there was epidemic
+                n50 = sum(values > 0.5)
 
-                    while current_iteration['node_count'][1] != 0:
-                        current_iteration = model.iteration()
+                # Calculate max infected nodes, when there wasn't epidemic
+                values[values > 0.5] = 0.
+                max_inf_nodes = max(values)
 
-                    res = np.append(res, current_iteration['node_count'][2] / n)
-                    model.reset()
-
-            n50 = sum(res > 0.5)
-            res[res > 0.5] = 0.
-            max_inf_nodes = max(res)
-            log.info(f'Epidemic %: {n50:.2f}%')
-            log.info(f'Max nodes were infected at non epidemic: {int(max_inf_nodes * n)}')
-            break
+                log.info(f'Epidemic %: {n50:.2f}%')
+                log.info(f'Max nodes were infected at non epidemic: {int(max_inf_nodes * n)}')
 
     def preprocessing(self):
         self.imdb_preprocessing()
         self.imdb = nx.read_gexf(DATA_ROOT / 'imdb_graph.gexf')
-        return
         n = len(nx.nodes(self.imdb))
         d_sum = sum([d[1] for d in list(nx.degree(self.imdb))]) / 2
         avg_d = 2 * d_sum / n
@@ -170,3 +172,23 @@ class Task1:
                 graph.add_edge(node1, node2)
 
         nx.write_gexf(graph, DATA_ROOT / f'{fname}.gexf')
+
+    def model_simulation(self, graph, infected_nodes):
+        n = len(nx.nodes(graph))
+        model = ep.SIRModel(graph)
+
+        config = Mc.Configuration()
+        config.add_model_parameter('beta', self.beta)
+        config.add_model_parameter('gamma', self.mu)
+        config.add_model_initial_configuration('Infected', infected_nodes)
+        model.set_initial_status(configuration=config)
+
+        current_iteration = model.iteration()
+
+        while current_iteration['node_count'][1] != 0:
+            current_iteration = model.iteration()
+
+        res = current_iteration['node_count'][2] / n
+        model.reset()
+
+        return res
