@@ -9,7 +9,7 @@ log = get_logger(__name__)
 def main():
     for Task in [
         # Task1,
-        # Task2,
+        Task2,
         Task3,
     ]:
         log.info(f'Started {Task.prefix}.')
