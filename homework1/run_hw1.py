@@ -8,7 +8,7 @@ log = get_logger(__name__)
 
 def main():
     for Task in [
-        # Task1,
+        Task1,
         Task2,
         Task3,
     ]:
