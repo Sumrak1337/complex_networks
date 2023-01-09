@@ -68,7 +68,7 @@ class Task1:
 
             for k, v in global_res.items():
                 log.info(f'Results for task 1.{k + 1}:')
-                values = np.array([v])
+                values = np.array(v)
 
                 # Calculate, how many times there was epidemic
                 n50 = sum(values > 0.5)
